@@ -78,7 +78,9 @@ def parse_args():
     )
 
     parser.add_argument("--lr", default=1e-3, help="Learning rate for training.")
-    parser.add_argument("--batch_size", default=64, help="Batch size for data loader.")
+    #NOTE: Change
+    default_batch = 128 if torch.backends.mps.is_available() else 64
+    parser.add_argument("--batch_size", default=default_batch, help="Batch size for data loader.")
     parser.add_argument("--n_epochs", default=120, help="Number of epochs to train for.")
     parser.add_argument("--patience", default=10, help="Number of epochs before early stopping.")
     parser.add_argument("--ignore_checkpoint", action="store_true", help="Whether to restart from scratch.")
@@ -90,10 +92,15 @@ def parse_args():
     # Set up distributed training if desired, and set the device
     args.local_rank = int(os.environ.get("LOCAL_RANK", -1))
     if args.local_rank == -1:
+        #if torch.backends.mps.is_available():
+        #    args.device = torch.device("mps")
+        #    print("Using Mac GPU (MPS)")
         if torch.cuda.is_available():
             args.device = torch.device("cuda")
+            print("Using CUDA GPU")
         else:
             args.device = torch.device("cpu")
+            print("Using CPU")
         args.world_size = 1
     else:
         dist.init_process_group(backend="nccl")
@@ -234,7 +241,9 @@ def train(args, curr_model):
 
 def temperature_scaling(args, curr_model):
     temp = nn.Parameter(torch.tensor(1.0, device=args.device))
-    opt = LBFGS([temp], lr=0.01, max_iter=500)
+    #NOTE: Change
+    #opt = LBFGS([temp], lr=0.01, max_iter=500)
+    opt = Adam([temp], lr = 0.01)
     loss_fn = nn.CrossEntropyLoss()
 
     n_epochs = 10
