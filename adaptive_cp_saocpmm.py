@@ -92,9 +92,9 @@ def parse_args():
     # Set up distributed training if desired, and set the device
     args.local_rank = int(os.environ.get("LOCAL_RANK", -1))
     if args.local_rank == -1:
-        #if torch.backends.mps.is_available():
-        #    args.device = torch.device("mps")
-        #    print("Using Mac GPU (MPS)")
+        if torch.backends.mps.is_available():
+            args.device = torch.device("mps")
+            print("Using Mac GPU (MPS)")
         if torch.cuda.is_available():
             args.device = torch.device("cuda")
             print("Using CUDA GPU")
