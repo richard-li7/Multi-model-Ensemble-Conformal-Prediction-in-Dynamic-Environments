@@ -127,7 +127,7 @@ def get_model_file(args, curr_model):
 
 def get_model(args, curr_model):
     if args.dataset != "ImageNet":
-        return torch.load(get_model_file(args, curr_model), map_location = args.device)
+        return torch.load(get_model_file(args, curr_model), map_location = args.device,weights_only=False)
     return create_model(dataset=ImageNet("valid"), model_name = curr_model, device=args.device)
 
 
@@ -172,7 +172,7 @@ def train(args, curr_model):
     model_file = get_model_file(args, curr_model)
     ckpt_name = os.path.join(os.path.dirname(model_file), "checkpoint.pt")
     if os.path.isfile(ckpt_name) and not args.ignore_checkpoint:
-        model, opt, epoch, best_epoch, best_valid_acc = torch.load(ckpt_name, map_location=args.device)
+        model, opt, epoch, best_epoch, best_valid_acc = torch.load(ckpt_name, map_location=args.device,weights_only=False)
     else:
         # create save directory if needed
         if args.local_rank in [-1, 0]:
@@ -337,7 +337,7 @@ def main():
                 severities = [0] if corruption is None else [1, 2, 3, 4, 5]
                 for severity in severities:
                     try:
-                        logits, labels = torch.load(get_results_file(args, curr_model, corruption, severity))
+                        logits, labels = torch.load(get_results_file(args, curr_model, corruption, severity),weights_only=False)
                     except:
                         continue
                     sev2results_m[severity].append(list(zip(F.softmax(logits / temp, dim=-1).numpy(), labels.numpy())))
