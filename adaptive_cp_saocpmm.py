@@ -79,7 +79,7 @@ def parse_args():
 
     parser.add_argument("--lr", default=1e-3, help="Learning rate for training.")
     #NOTE: Change
-    default_batch = 128 if torch.backends.mps.is_available() else 64
+    default_batch = 64
     parser.add_argument("--batch_size", default=default_batch, help="Batch size for data loader.")
     parser.add_argument("--n_epochs", default=120, help="Number of epochs to train for.")
     parser.add_argument("--patience", default=10, help="Number of epochs before early stopping.")
